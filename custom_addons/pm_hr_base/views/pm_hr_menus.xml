@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Top Menu for PM & HR Suite in base module -->
+    <menuitem id="menu_pm_hr_root" name="PM &amp; HR Suite" sequence="10" web_icon="hr,static/description/icon.png"/>
+</odoo>

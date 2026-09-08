@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_pm_hr" model="ir.module.category">
+            <field name="name">PM &amp; HR Suite</field>
+            <field name="description">Quan ly du an va nhan su hop nhat</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Employee Group -->
+        <record id="group_employee" model="res.groups">
+            <field name="name">Nhan vien (Employee)</field>
+            <field name="category_id" ref="module_category_pm_hr"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('project.group_project_user')), (4, ref('project.group_project_stages'))]"/>
+        </record>
+
+        <!-- HR Officer Group -->
+        <record id="group_hr_officer" model="res.groups">
+            <field name="name">Nhan su (HR Officer)</field>
+            <field name="category_id" ref="module_category_pm_hr"/>
+            <field name="implied_ids" eval="[(4, ref('group_employee')), (4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Manager Group -->
+        <record id="group_manager" model="res.groups">
+            <field name="name">Truong phong / Quan ly du an (Manager)</field>
+            <field name="category_id" ref="module_category_pm_hr"/>
+            <field name="implied_ids" eval="[(4, ref('group_employee')), (4, ref('project.group_project_manager')), (4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Executive Group -->
+        <record id="group_executive" model="res.groups">
+            <field name="name">Ban lanh dao (Executive)</field>
+            <field name="category_id" ref="module_category_pm_hr"/>
+            <field name="implied_ids" eval="[(4, ref('group_employee'))]"/>
+        </record>
+
+        <!-- Admin Group -->
+        <record id="group_admin" model="res.groups">
+            <field name="name">Quan tri he thong (Admin)</field>
+            <field name="category_id" ref="module_category_pm_hr"/>
+            <field name="implied_ids" eval="[(4, ref('group_manager')), (4, ref('group_hr_officer')), (4, ref('group_executive'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+</odoo>

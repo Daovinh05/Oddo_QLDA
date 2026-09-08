@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Employee Form View Extension -->
+    <record id="view_employee_form_pmhr" model="ir.ui.view">
+        <field name="name">hr.employee.form.pmhr</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <h1>
+                    <field name="employee_code" readonly="1" placeholder="Mã NV..."/>
+                </h1>
+            </xpath>
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="date_join"/>
+                <field name="employee_status" widget="badge" 
+                       decoration-success="employee_status == 'official'" 
+                       decoration-warning="employee_status == 'probation'" 
+                       decoration-danger="employee_status == 'resigned'"/>
+                <field name="leave_balance"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Dự án tham gia" name="page_projects">
+                    <field name="project_ids"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Employee Tree View Extension -->
+    <record id="view_employee_tree_pmhr" model="ir.ui.view">
+        <field name="name">hr.employee.tree.pmhr</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="employee_code"/>
+            </xpath>
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="date_join"/>
+                <field name="employee_status" widget="badge" 
+                       decoration-success="employee_status == 'official'" 
+                       decoration-warning="employee_status == 'probation'" 
+                       decoration-danger="employee_status == 'resigned'"/>
+                <field name="leave_balance"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

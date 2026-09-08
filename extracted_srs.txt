@@ -1,0 +1,695 @@
+TÀI LIỆU ĐẶC TẢ YÊU CẦU PHẦN MỀM
+(Software Requirements Specification – SRS)
+HỆ THỐNG QUẢN LÝ DỰ ÁN & NHÂN SỰ TRÊN NỀN TẢNG ODOO
+Module: pm_hr_suite  |  Odoo 17.0 Community/Enterprise
+Phiên bản: 1.0
+Ngày phát hành: 08/09/2026
+Đối tượng đọc: Development Agent / Đội ngũ lập trình Odoo
+MỤC LỤC
+1. GIỚI THIỆU
+1.1 Mục đích tài liệu
+Tài liệu này đặc tả đầy đủ yêu cầu chức năng, phi chức năng, mô hình dữ liệu, thiết kế giao diện (dashboard, kanban, list, form, calendar, gantt) và cấu trúc module cho hệ thống Quản lý Dự án và Nhân sự được xây dựng trên nền tảng Odoo. Tài liệu được viết ở mức chi tiết đủ để một agent lập trình (AI coding agent) hoặc đội ngũ phát triển có thể triển khai trực tiếp thành module Odoo mà không cần làm rõ thêm nhiều.
+1.2 Phạm vi hệ thống
+Xây dựng module Odoo tùy chỉnh (custom module) tên pm_hr_suite, kế thừa và mở rộng các module chuẩn: project, hr, hr_timesheet, hr_holidays, hr_recruitment, hr_attendance, hr_appraisal, hr_expense, hr_contract, mail, calendar, spreadsheet_dashboard (nếu dùng Enterprise) hoặc board (Community).
+Phạm vi nghiệp vụ: Quản lý dự án (project/task/milestone/timesheet/budget), Quản lý nhân sự (hồ sơ nhân viên, phòng ban, chấm công, nghỉ phép, tuyển dụng, đánh giá hiệu suất, hợp đồng, lương cơ bản), Dashboard điều hành tổng hợp đa module, Quản trị người dùng & phân quyền.
+Không thuộc phạm vi (out of scope) phiên bản 1.0: Payroll đầy đủ theo luật thuế Việt Nam chi tiết, tích hợp chấm công vân tay phần cứng, tích hợp kế toán/tài chính sâu (chỉ dừng ở mức budget theo dự án).
+1.3 Đối tượng sử dụng tài liệu
+Đối tượng | Mục đích sử dụng tài liệu
+Đối tượng
+Mục đích sử dụng tài liệu
+Development Agent / Lập trình viên Odoo | Dựa vào mô hình dữ liệu, view spec, cấu trúc module để code trực tiếp
+Development Agent / Lập trình viên Odoo
+Dựa vào mô hình dữ liệu, view spec, cấu trúc module để code trực tiếp
+Business Analyst / QA | Đối chiếu yêu cầu nghiệp vụ, viết test case, nghiệm thu
+Business Analyst / QA
+Đối chiếu yêu cầu nghiệp vụ, viết test case, nghiệm thu
+Quản lý dự án (PM) | Hiểu phạm vi, tiến độ triển khai, tiêu chí nghiệm thu
+Quản lý dự án (PM)
+Hiểu phạm vi, tiến độ triển khai, tiêu chí nghiệm thu
+Khách hàng / Chủ đầu tư | Phê duyệt yêu cầu trước khi triển khai
+Khách hàng / Chủ đầu tư
+Phê duyệt yêu cầu trước khi triển khai
+1.4 Định nghĩa, từ viết tắt
+Từ viết tắt | Giải thích
+Từ viết tắt
+Giải thích
+SRS | Software Requirements Specification – Đặc tả yêu cầu phần mềm
+SRS
+Software Requirements Specification – Đặc tả yêu cầu phần mềm
+ORM | Object-Relational Mapping – lớp ánh xạ đối tượng của Odoo
+ORM
+Object-Relational Mapping – lớp ánh xạ đối tượng của Odoo
+Model | Lớp Python kế thừa models.Model, ánh xạ tới bảng dữ liệu trong PostgreSQL
+Model
+Lớp Python kế thừa models.Model, ánh xạ tới bảng dữ liệu trong PostgreSQL
+Kanban view | Giao diện dạng thẻ/bảng trực quan theo trạng thái
+Kanban view
+Giao diện dạng thẻ/bảng trực quan theo trạng thái
+Smart button | Nút thống kê hiển thị trên form view, dẫn tới dữ liệu liên quan
+Smart button
+Nút thống kê hiển thị trên form view, dẫn tới dữ liệu liên quan
+Access Rights (ir.model.access) | Quyền CRUD theo model, gán theo nhóm người dùng
+Access Rights (ir.model.access)
+Quyền CRUD theo model, gán theo nhóm người dùng
+Record Rules (ir.rule) | Quy tắc lọc dữ liệu theo bản ghi (row-level security)
+Record Rules (ir.rule)
+Quy tắc lọc dữ liệu theo bản ghi (row-level security)
+QWeb | Ngôn ngữ template XML dùng để định nghĩa view và report trong Odoo
+QWeb
+Ngôn ngữ template XML dùng để định nghĩa view và report trong Odoo
+OWL | Odoo Web Library – framework JS/component dùng cho UI Odoo 17
+OWL
+Odoo Web Library – framework JS/component dùng cho UI Odoo 17
+KPI | Key Performance Indicator – chỉ số hiệu suất cốt lõi hiển thị trên dashboard
+KPI
+Key Performance Indicator – chỉ số hiệu suất cốt lõi hiển thị trên dashboard
+1.5 Tài liệu tham khảo
+Tài liệu kỹ thuật chính thức Odoo 17 – https://www.odoo.com/documentation/17.0/
+Chuẩn đặt tên module & coding guideline Odoo (OCA Guidelines)
+2. MÔ TẢ TỔNG QUAN HỆ THỐNG
+2.1 Bối cảnh nghiệp vụ
+Doanh nghiệp cần một hệ thống hợp nhất để: (1) lập kế hoạch, theo dõi và báo cáo tiến độ các dự án; (2) quản lý toàn bộ vòng đời nhân sự từ tuyển dụng, chấm công, nghỉ phép đến đánh giá hiệu suất; (3) cung cấp dashboard điều hành cho Ban lãnh đạo/PM để ra quyết định nhanh dựa trên dữ liệu thời gian thực. Hệ thống được xây dựng trên Odoo nhằm tận dụng framework ORM, hệ thống quyền hạn, workflow, email/activity, và khả năng mở rộng module sẵn có.
+2.2 Kiến trúc tổng thể
+Module tùy chỉnh pm_hr_suite được chia thành các sub-module (module con) độc lập nhưng phụ thuộc lẫn nhau, giúp agent code từng phần theo đúng trình tự dependency:
+Module | Phụ thuộc (depends) | Chức năng chính
+Module
+Phụ thuộc (depends)
+Chức năng chính
+pm_hr_base | base, mail | Định nghĩa nhóm quyền, cấu hình chung, sequence, cấu trúc phòng ban mở rộng
+pm_hr_base
+base, mail
+Định nghĩa nhóm quyền, cấu hình chung, sequence, cấu trúc phòng ban mở rộng
+pm_hr_project | project, hr_timesheet, pm_hr_base | Mở rộng project.project & project.task: ngân sách, mức độ rủi ro, sức khỏe dự án, milestone, dashboard dự án
+pm_hr_project
+project, hr_timesheet, pm_hr_base
+Mở rộng project.project & project.task: ngân sách, mức độ rủi ro, sức khỏe dự án, milestone, dashboard dự án
+pm_hr_employee | hr, hr_contract, hr_holidays, hr_attendance, pm_hr_base | Mở rộng hồ sơ nhân viên, hợp đồng, nghỉ phép, chấm công
+pm_hr_employee
+hr, hr_contract, hr_holidays, hr_attendance, pm_hr_base
+Mở rộng hồ sơ nhân viên, hợp đồng, nghỉ phép, chấm công
+pm_hr_recruitment | hr_recruitment, pm_hr_employee | Quy trình tuyển dụng, phễu ứng viên (kanban theo stage)
+pm_hr_recruitment
+hr_recruitment, pm_hr_employee
+Quy trình tuyển dụng, phễu ứng viên (kanban theo stage)
+pm_hr_appraisal | hr_appraisal, pm_hr_employee | Đánh giá hiệu suất nhân viên định kỳ, gắn với KPI dự án
+pm_hr_appraisal
+hr_appraisal, pm_hr_employee
+Đánh giá hiệu suất nhân viên định kỳ, gắn với KPI dự án
+pm_hr_dashboard | board, pm_hr_project, pm_hr_employee | Dashboard tổng hợp toàn hệ thống (KPI, biểu đồ, bảng số liệu)
+pm_hr_dashboard
+board, pm_hr_project, pm_hr_employee
+Dashboard tổng hợp toàn hệ thống (KPI, biểu đồ, bảng số liệu)
+2.3 Vai trò người dùng (User Roles)
+Vai trò | Nhóm quyền Odoo (group) | Mô tả quyền hạn
+Vai trò
+Nhóm quyền Odoo (group)
+Mô tả quyền hạn
+Quản trị hệ thống (Admin) | pm_hr.group_admin | Toàn quyền cấu hình module, phân quyền, xem tất cả dữ liệu
+Quản trị hệ thống (Admin)
+pm_hr.group_admin
+Toàn quyền cấu hình module, phân quyền, xem tất cả dữ liệu
+Ban lãnh đạo (Executive) | pm_hr.group_executive | Xem toàn bộ dashboard, báo cáo, không có quyền sửa/xóa dữ liệu tác nghiệp
+Ban lãnh đạo (Executive)
+pm_hr.group_executive
+Xem toàn bộ dashboard, báo cáo, không có quyền sửa/xóa dữ liệu tác nghiệp
+Trưởng phòng / Quản lý dự án (PM) | pm_hr.group_manager | Toàn quyền trên dự án/nhân sự thuộc phòng ban mình quản lý
+Trưởng phòng / Quản lý dự án (PM)
+pm_hr.group_manager
+Toàn quyền trên dự án/nhân sự thuộc phòng ban mình quản lý
+Nhân viên (Employee) | pm_hr.group_employee | Xem/sửa task được giao, chấm timesheet, gửi đơn nghỉ phép, xem hồ sơ cá nhân
+Nhân viên (Employee)
+pm_hr.group_employee
+Xem/sửa task được giao, chấm timesheet, gửi đơn nghỉ phép, xem hồ sơ cá nhân
+Nhân sự (HR Officer) | pm_hr.group_hr_officer | Toàn quyền trên module nhân sự (tuyển dụng, hợp đồng, chấm công, nghỉ phép)
+Nhân sự (HR Officer)
+pm_hr.group_hr_officer
+Toàn quyền trên module nhân sự (tuyển dụng, hợp đồng, chấm công, nghỉ phép)
+2.4 Giả định và ràng buộc
+Hệ thống triển khai trên Odoo 17.0 (Community, có thể nâng cấp Enterprise để dùng Spreadsheet Dashboard & Gantt view có sẵn).
+Cơ sở dữ liệu PostgreSQL 14+; máy chủ Linux Ubuntu 22.04.
+Ngôn ngữ giao diện mặc định: Tiếng Việt (vi_VN), hỗ trợ đa ngôn ngữ (en_US).
+Múi giờ mặc định: Asia/Ho_Chi_Minh; định dạng tiền tệ: VND.
+Người dùng truy cập qua trình duyệt web (desktop) và ứng dụng Odoo Mobile.
+3. YÊU CẦU CHỨC NĂNG
+3.1 Module Quản lý Dự án (pm_hr_project)
+3.1.1 Mô hình dữ liệu
+Model project.project (kế thừa/mở rộng model chuẩn):
+Field | Kiểu dữ liệu | Mô tả
+Field
+Kiểu dữ liệu
+Mô tả
+name | Char (required) | Tên dự án
+name
+Char (required)
+Tên dự án
+code | Char | Mã dự án, unique, sinh tự động theo sequence PRJ/%(year)s/%(seq)03d
+code
+Char
+Mã dự án, unique, sinh tự động theo sequence PRJ/%(year)s/%(seq)03d
+partner_id | Many2one res.partner | Khách hàng / đối tác liên quan
+partner_id
+Many2one res.partner
+Khách hàng / đối tác liên quan
+user_id | Many2one res.users | Quản lý dự án (Project Manager)
+user_id
+Many2one res.users
+Quản lý dự án (Project Manager)
+department_id | Many2one hr.department | Phòng ban chủ trì
+department_id
+Many2one hr.department
+Phòng ban chủ trì
+date_start / date_end | Date | Ngày bắt đầu / kết thúc kế hoạch
+date_start / date_end
+Date
+Ngày bắt đầu / kết thúc kế hoạch
+budget_planned | Monetary | Ngân sách kế hoạch
+budget_planned
+Monetary
+Ngân sách kế hoạch
+budget_actual | Monetary (computed) | Ngân sách thực tế = tổng chi phí timesheet + expense liên kết
+budget_actual
+Monetary (computed)
+Ngân sách thực tế = tổng chi phí timesheet + expense liên kết
+priority | Selection [low, normal, high, urgent] | Mức độ ưu tiên dự án
+priority
+Selection [low, normal, high, urgent]
+Mức độ ưu tiên dự án
+risk_level | Selection [low, medium, high] | Mức độ rủi ro, cập nhật thủ công hoặc theo % trễ tiến độ
+risk_level
+Selection [low, medium, high]
+Mức độ rủi ro, cập nhật thủ công hoặc theo % trễ tiến độ
+health_status | Selection [on_track, at_risk, delayed] (computed) | Sức khỏe dự án tính tự động dựa trên % task quá hạn
+health_status
+Selection [on_track, at_risk, delayed] (computed)
+Sức khỏe dự án tính tự động dựa trên % task quá hạn
+progress | Float (computed, %) | Tiến độ = số task Done / tổng số task
+progress
+Float (computed, %)
+Tiến độ = số task Done / tổng số task
+stage_id | Many2one project.project.stage | Giai đoạn dự án: Khởi tạo, Đang thực hiện, Nghiệm thu, Đóng
+stage_id
+Many2one project.project.stage
+Giai đoạn dự án: Khởi tạo, Đang thực hiện, Nghiệm thu, Đóng
+milestone_ids | One2many project.milestone | Danh sách mốc dự án
+milestone_ids
+One2many project.milestone
+Danh sách mốc dự án
+task_ids | One2many project.task | Danh sách công việc
+task_ids
+One2many project.task
+Danh sách công việc
+member_ids | Many2many res.users | Thành viên tham gia dự án
+member_ids
+Many2many res.users
+Thành viên tham gia dự án
+active | Boolean | Cờ lưu trữ (archive)
+active
+Boolean
+Cờ lưu trữ (archive)
+Model project.task (mở rộng):
+Field | Kiểu dữ liệu | Mô tả
+Field
+Kiểu dữ liệu
+Mô tả
+name | Char (required) | Tên công việc
+name
+Char (required)
+Tên công việc
+project_id | Many2one project.project | Dự án cha
+project_id
+Many2one project.project
+Dự án cha
+parent_id | Many2one project.task | Task cha (hỗ trợ subtask)
+parent_id
+Many2one project.task
+Task cha (hỗ trợ subtask)
+stage_id | Many2one project.task.type | Trạng thái: To Do, In Progress, Review, Done, Cancelled
+stage_id
+Many2one project.task.type
+Trạng thái: To Do, In Progress, Review, Done, Cancelled
+user_ids | Many2many res.users | Người phụ trách (cho phép giao nhiều người)
+user_ids
+Many2many res.users
+Người phụ trách (cho phép giao nhiều người)
+date_deadline | Date | Hạn hoàn thành
+date_deadline
+Date
+Hạn hoàn thành
+priority | Selection [0=Normal, 1=Important] | Độ ưu tiên
+priority
+Selection [0=Normal, 1=Important]
+Độ ưu tiên
+planned_hours | Float | Số giờ dự kiến
+planned_hours
+Float
+Số giờ dự kiến
+effective_hours | Float (computed từ timesheet) | Số giờ thực tế đã ghi nhận
+effective_hours
+Float (computed từ timesheet)
+Số giờ thực tế đã ghi nhận
+progress | Float (%) | % hoàn thành, nhập tay hoặc computed theo effective/planned
+progress
+Float (%)
+% hoàn thành, nhập tay hoặc computed theo effective/planned
+tag_ids | Many2many project.tags | Nhãn phân loại (Bug, Feature, Urgent...)
+tag_ids
+Many2many project.tags
+Nhãn phân loại (Bug, Feature, Urgent...)
+milestone_id | Many2one project.milestone | Mốc liên quan
+milestone_id
+Many2one project.milestone
+Mốc liên quan
+kanban_state | Selection [normal, done, blocked] | Trạng thái đèn kanban (xanh/đỏ/xám)
+kanban_state
+Selection [normal, done, blocked]
+Trạng thái đèn kanban (xanh/đỏ/xám)
+depend_on_ids | Many2many project.task | Task phụ thuộc (blocking tasks)
+depend_on_ids
+Many2many project.task
+Task phụ thuộc (blocking tasks)
+timesheet_ids | One2many account.analytic.line | Bảng chấm công theo task
+timesheet_ids
+One2many account.analytic.line
+Bảng chấm công theo task
+Model mới project.milestone: name, project_id, deadline, is_reached (Boolean), task_ids (One2many).
+3.1.2 Views yêu cầu cho project.project
+View | Mô tả chi tiết
+View
+Mô tả chi tiết
+Kanban (mặc định) | Nhóm theo stage_id (Khởi tạo/Đang thực hiện/Nghiệm thu/Đóng). Mỗi thẻ hiển thị: tên dự án, avatar PM, progress bar, badge priority (màu theo mức), badge risk_level, ngày kết thúc, số task còn lại. Card có menu 3 chấm: Archive, Duplicate. Cho phép kéo-thả (drag & drop) đổi stage.
+Kanban (mặc định)
+Nhóm theo stage_id (Khởi tạo/Đang thực hiện/Nghiệm thu/Đóng). Mỗi thẻ hiển thị: tên dự án, avatar PM, progress bar, badge priority (màu theo mức), badge risk_level, ngày kết thúc, số task còn lại. Card có menu 3 chấm: Archive, Duplicate. Cho phép kéo-thả (drag & drop) đổi stage.
+List/Tree | Cột: Mã dự án, Tên, Khách hàng, PM, Phòng ban, Ngày bắt đầu/kết thúc, Ngân sách KH/TT, Tiến độ (%), Trạng thái sức khỏe, Ưu tiên. Hỗ trợ group by Phòng ban/PM/Trạng thái; hỗ trợ filter & sort mọi cột.
+List/Tree
+Cột: Mã dự án, Tên, Khách hàng, PM, Phòng ban, Ngày bắt đầu/kết thúc, Ngân sách KH/TT, Tiến độ (%), Trạng thái sức khỏe, Ưu tiên. Hỗ trợ group by Phòng ban/PM/Trạng thái; hỗ trợ filter & sort mọi cột.
+Form | Chia tab: Thông tin chung, Công việc (task_ids dạng kanban lồng), Mốc dự án (milestone_ids dạng list), Ngân sách (budget_planned vs actual + biểu đồ), Thành viên. Header có statusbar theo stage_id và các smart button: Số Task, Số Giờ đã log, Ngân sách, Tài liệu đính kèm.
+Form
+Chia tab: Thông tin chung, Công việc (task_ids dạng kanban lồng), Mốc dự án (milestone_ids dạng list), Ngân sách (budget_planned vs actual + biểu đồ), Thành viên. Header có statusbar theo stage_id và các smart button: Số Task, Số Giờ đã log, Ngân sách, Tài liệu đính kèm.
+Calendar | Hiển thị milestone_ids và date_deadline của task theo lịch tháng/tuần.
+Calendar
+Hiển thị milestone_ids và date_deadline của task theo lịch tháng/tuần.
+Gantt (Enterprise) / fallback List có cột progress (Community) | Biểu đồ Gantt theo task_ids: trục thời gian planned_hours, thể hiện phụ thuộc depend_on_ids bằng mũi tên.
+Gantt (Enterprise) / fallback List có cột progress (Community)
+Biểu đồ Gantt theo task_ids: trục thời gian planned_hours, thể hiện phụ thuộc depend_on_ids bằng mũi tên.
+Pivot & Graph | Pivot: phân tích ngân sách theo Phòng ban x Tháng. Graph: cột (bar) so sánh budget_planned vs budget_actual theo dự án; đường (line) tiến độ theo thời gian.
+Pivot & Graph
+Pivot: phân tích ngân sách theo Phòng ban x Tháng. Graph: cột (bar) so sánh budget_planned vs budget_actual theo dự án; đường (line) tiến độ theo thời gian.
+Search view | Filter nhanh: Dự án của tôi, Quá hạn, Đang gặp rủi ro (risk_level=high), Sắp hoàn thành. Group by: Phòng ban, PM, Trạng thái, Khách hàng.
+Search view
+Filter nhanh: Dự án của tôi, Quá hạn, Đang gặp rủi ro (risk_level=high), Sắp hoàn thành. Group by: Phòng ban, PM, Trạng thái, Khách hàng.
+3.1.3 Views yêu cầu cho project.task
+View | Mô tả chi tiết
+View
+Mô tả chi tiết
+Kanban | Nhóm theo stage_id. Card hiển thị: tên task, avatar người phụ trách (nhiều avatar nếu nhiều người), tag màu, đèn kanban_state (progressbar tròn), ngày deadline (đỏ nếu quá hạn), priority (icon ngôi sao), % progress. Hỗ trợ Quick create trực tiếp trên cột.
+Kanban
+Nhóm theo stage_id. Card hiển thị: tên task, avatar người phụ trách (nhiều avatar nếu nhiều người), tag màu, đèn kanban_state (progressbar tròn), ngày deadline (đỏ nếu quá hạn), priority (icon ngôi sao), % progress. Hỗ trợ Quick create trực tiếp trên cột.
+List | Cột: Tên task, Dự án, Người phụ trách, Deadline, Ưu tiên, Trạng thái, Giờ KH/TT, % tiến độ. Hỗ trợ inline edit trạng thái & người phụ trách. Hàng quá hạn tô nền đỏ nhạt (decoration-danger).
+List
+Cột: Tên task, Dự án, Người phụ trách, Deadline, Ưu tiên, Trạng thái, Giờ KH/TT, % tiến độ. Hỗ trợ inline edit trạng thái & người phụ trách. Hàng quá hạn tô nền đỏ nhạt (decoration-danger).
+Form | Header: statusbar stage_id + nút Đánh dấu hoàn thành. Body 2 cột: trái là mô tả/checklist/subtask (parent/child), phải là thông tin (người phụ trách, deadline, tag, milestone, priority). Tab Timesheet để log giờ trực tiếp. Tab Sub-tasks hiển thị task con dạng list có thể tạo nhanh.
+Form
+Header: statusbar stage_id + nút Đánh dấu hoàn thành. Body 2 cột: trái là mô tả/checklist/subtask (parent/child), phải là thông tin (người phụ trách, deadline, tag, milestone, priority). Tab Timesheet để log giờ trực tiếp. Tab Sub-tasks hiển thị task con dạng list có thể tạo nhanh.
+Activity view | Theo dõi hoạt động (log note, gọi điện, email) gắn với từng task qua mail.thread/mail.activity.
+Activity view
+Theo dõi hoạt động (log note, gọi điện, email) gắn với từng task qua mail.thread/mail.activity.
+3.1.4 Chức năng chi tiết
+Tạo dự án từ template (project.project với is_template=True) để nhân bản nhanh cấu trúc task chuẩn.
+Tự động tính health_status: on_track nếu <10% task quá hạn, at_risk 10-30%, delayed >30% (cron chạy mỗi đêm cập nhật, hoặc computed field).
+Gửi thông báo (mail.activity) tự động cho PM khi risk_level chuyển sang high.
+Cho phép giao nhiều người phụ trách 1 task (user_ids), tự động chia đều hoặc gán tay giờ dự kiến.
+Cảnh báo task phụ thuộc: không cho chuyển stage sang 'Done' nếu depend_on_ids chưa hoàn tất (validation trong write()).
+Timesheet: nhân viên log giờ trực tiếp trên task (widget đồng hồ bấm giờ - timer nếu Enterprise, hoặc nhập tay số giờ nếu Community).
+3.2 Module Quản lý Nhân sự (pm_hr_employee, pm_hr_recruitment, pm_hr_appraisal)
+3.2.1 Mô hình dữ liệu — hr.employee (mở rộng)
+Field | Kiểu dữ liệu | Mô tả
+Field
+Kiểu dữ liệu
+Mô tả
+employee_code | Char, unique | Mã nhân viên, sequence EMP%(seq)05d
+employee_code
+Char, unique
+Mã nhân viên, sequence EMP%(seq)05d
+name, work_email, work_phone | Char | Thông tin cơ bản (kế thừa chuẩn Odoo)
+name, work_email, work_phone
+Char
+Thông tin cơ bản (kế thừa chuẩn Odoo)
+department_id | Many2one hr.department | Phòng ban
+department_id
+Many2one hr.department
+Phòng ban
+job_id | Many2one hr.job | Chức danh
+job_id
+Many2one hr.job
+Chức danh
+parent_id | Many2one hr.employee | Quản lý trực tiếp
+parent_id
+Many2one hr.employee
+Quản lý trực tiếp
+coach_id | Many2one hr.employee | Người hướng dẫn (mentor)
+coach_id
+Many2one hr.employee
+Người hướng dẫn (mentor)
+contract_ids | One2many hr.contract | Danh sách hợp đồng lao động
+contract_ids
+One2many hr.contract
+Danh sách hợp đồng lao động
+date_join | Date | Ngày vào làm
+date_join
+Date
+Ngày vào làm
+employee_status | Selection [probation, official, resigned] | Trạng thái nhân sự
+employee_status
+Selection [probation, official, resigned]
+Trạng thái nhân sự
+skill_ids | Many2many hr.employee.skill (chuẩn Odoo 17) | Kỹ năng/chứng chỉ
+skill_ids
+Many2many hr.employee.skill (chuẩn Odoo 17)
+Kỹ năng/chứng chỉ
+project_ids | Many2many project.project (related qua task/member) | Các dự án đang tham gia
+project_ids
+Many2many project.project (related qua task/member)
+Các dự án đang tham gia
+leave_balance | Float (computed) | Số ngày phép còn lại
+leave_balance
+Float (computed)
+Số ngày phép còn lại
+attendance_state | Selection (chuẩn) [checked_in, checked_out] | Trạng thái chấm công hiện tại
+attendance_state
+Selection (chuẩn) [checked_in, checked_out]
+Trạng thái chấm công hiện tại
+avatar_128 | Binary | Ảnh đại diện (dùng cho kanban)
+avatar_128
+Binary
+Ảnh đại diện (dùng cho kanban)
+3.2.2 Views cho hr.employee
+View | Mô tả chi tiết
+View
+Mô tả chi tiết
+Kanban | Nhóm theo Phòng ban (department_id). Card: avatar tròn, tên, chức danh, badge trạng thái chấm công (xanh=đang làm/đỏ=đã ra), số dự án đang tham gia, icon liên hệ nhanh (gọi/email).
+Kanban
+Nhóm theo Phòng ban (department_id). Card: avatar tròn, tên, chức danh, badge trạng thái chấm công (xanh=đang làm/đỏ=đã ra), số dự án đang tham gia, icon liên hệ nhanh (gọi/email).
+List | Cột: Mã NV, Họ tên, Phòng ban, Chức danh, Quản lý trực tiếp, Ngày vào làm, Trạng thái, Số phép còn lại. Group by Phòng ban/Chức danh/Trạng thái.
+List
+Cột: Mã NV, Họ tên, Phòng ban, Chức danh, Quản lý trực tiếp, Ngày vào làm, Trạng thái, Số phép còn lại. Group by Phòng ban/Chức danh/Trạng thái.
+Form | Tab: Thông tin cá nhân, Thông tin công việc (phòng ban/chức danh/quản lý), Hợp đồng (contract_ids), Kỹ năng, Nghỉ phép & Chấm công (thống kê nhanh), Dự án tham gia. Smart button: Hợp đồng, Đơn nghỉ phép, Timesheet, Đánh giá hiệu suất.
+Form
+Tab: Thông tin cá nhân, Thông tin công việc (phòng ban/chức danh/quản lý), Hợp đồng (contract_ids), Kỹ năng, Nghỉ phép & Chấm công (thống kê nhanh), Dự án tham gia. Smart button: Hợp đồng, Đơn nghỉ phép, Timesheet, Đánh giá hiệu suất.
+Sơ đồ tổ chức (Org Chart) | Widget hr_org_chart hiển thị cây quản lý (parent_id) trực quan ngay trên form.
+Sơ đồ tổ chức (Org Chart)
+Widget hr_org_chart hiển thị cây quản lý (parent_id) trực quan ngay trên form.
+Map view (tuỳ chọn) | Nếu cần: hiển thị nhân viên theo địa điểm làm việc (work_location_id).
+Map view (tuỳ chọn)
+Nếu cần: hiển thị nhân viên theo địa điểm làm việc (work_location_id).
+3.2.3 Chấm công & Nghỉ phép (hr.attendance / hr.leave)
+Kanban điểm danh nhanh: màn hình Check-in/Check-out theo mã nhân viên hoặc quét QR.
+List chấm công: Nhân viên, Ngày, Giờ vào, Giờ ra, Số giờ làm, Trạng thái (đúng giờ/đi trễ/về sớm), decoration-warning cho trễ >15 phút.
+Calendar nghỉ phép: hiển thị theo phòng ban, màu theo loại nghỉ (phép năm, ốm, không lương).
+Kanban đơn nghỉ phép nhóm theo trạng thái: Nháp → Chờ duyệt → Đã duyệt → Từ chối, hỗ trợ duyệt 2 cấp (quản lý trực tiếp → HR).
+Dashboard riêng 'Chấm công hôm nay': số người đã check-in, đi trễ, nghỉ phép, chưa check-in (cảnh báo đỏ).
+3.2.4 Tuyển dụng (pm_hr_recruitment)
+Kanban ứng viên nhóm theo stage: Ứng tuyển mới → Sàng lọc CV → Phỏng vấn vòng 1 → Phỏng vấn vòng 2 → Đề nghị offer → Đã tuyển/Từ chối.
+Card ứng viên hiển thị: avatar, tên, vị trí ứng tuyển, đánh giá sao (kanban_state), nguồn tuyển dụng, ngày ứng tuyển.
+Form ứng viên: đính kèm CV (PDF), lịch phỏng vấn (calendar.event liên kết), ghi chú đánh giá từng vòng, nút 'Chuyển thành nhân viên' tự động tạo hr.employee khi trúng tuyển.
+Dashboard tuyển dụng: pipeline theo vị trí, thời gian tuyển dụng trung bình (time-to-hire), tỷ lệ chuyển đổi qua từng vòng.
+3.2.5 Đánh giá hiệu suất (pm_hr_appraisal)
+Kanban đánh giá nhóm theo trạng thái: Lên lịch → Tự đánh giá → Quản lý đánh giá → Hoàn tất.
+Form đánh giá: gồm các tiêu chí (competency) có thang điểm 1-5, liên kết với số liệu progress từ project.task đã hoàn thành trong kỳ (tự động gợi ý).
+Biểu đồ radar/bar so sánh điểm đánh giá qua các kỳ (Graph view).
+3.3 Dashboard tổng hợp (pm_hr_dashboard)
+Trang Dashboard chính (route riêng trong menu gốc, xây bằng OWL component action_client hoặc board.board) hiển thị theo bố cục lưới (grid) responsive, gồm các khối:
+Khối (Widget) | Loại hiển thị | Nguồn dữ liệu / Công thức
+Khối (Widget)
+Loại hiển thị
+Nguồn dữ liệu / Công thức
+Tổng số dự án đang chạy | KPI số (số lớn + xu hướng %) | COUNT project.project WHERE stage != Đóng
+Tổng số dự án đang chạy
+KPI số (số lớn + xu hướng %)
+COUNT project.project WHERE stage != Đóng
+Dự án có rủi ro cao | KPI số + danh sách rút gọn | COUNT WHERE risk_level = high, list top 5
+Dự án có rủi ro cao
+KPI số + danh sách rút gọn
+COUNT WHERE risk_level = high, list top 5
+Tiến độ trung bình các dự án | Gauge chart (đồng hồ đo %) | AVG(progress) toàn bộ dự án active
+Tiến độ trung bình các dự án
+Gauge chart (đồng hồ đo %)
+AVG(progress) toàn bộ dự án active
+Ngân sách kế hoạch vs thực tế | Bar chart theo tháng/phòng ban | SUM(budget_planned), SUM(budget_actual) group by department_id
+Ngân sách kế hoạch vs thực tế
+Bar chart theo tháng/phòng ban
+SUM(budget_planned), SUM(budget_actual) group by department_id
+Task quá hạn | KPI số + list | COUNT project.task WHERE date_deadline < today AND stage != Done
+Task quá hạn
+KPI số + list
+COUNT project.task WHERE date_deadline < today AND stage != Done
+Tổng nhân sự / theo phòng ban | Donut chart | COUNT hr.employee group by department_id
+Tổng nhân sự / theo phòng ban
+Donut chart
+COUNT hr.employee group by department_id
+Tỷ lệ chấm công hôm nay | KPI % + progress bar | checked_in / tổng nhân viên hoạt động
+Tỷ lệ chấm công hôm nay
+KPI % + progress bar
+checked_in / tổng nhân viên hoạt động
+Đơn nghỉ phép chờ duyệt | KPI số + list rút gọn | COUNT hr.leave WHERE state = confirm
+Đơn nghỉ phép chờ duyệt
+KPI số + list rút gọn
+COUNT hr.leave WHERE state = confirm
+Pipeline tuyển dụng | Funnel chart | COUNT hr.applicant group by stage_id
+Pipeline tuyển dụng
+Funnel chart
+COUNT hr.applicant group by stage_id
+Top 5 nhân viên nhiều giờ log nhất tháng | Bar chart ngang | SUM(unit_amount) account.analytic.line group by employee_id, filter tháng hiện tại
+Top 5 nhân viên nhiều giờ log nhất tháng
+Bar chart ngang
+SUM(unit_amount) account.analytic.line group by employee_id, filter tháng hiện tại
+Lịch mốc dự án sắp tới (7 ngày) | List/timeline nhỏ | project.milestone WHERE deadline BETWEEN today AND today+7
+Lịch mốc dự án sắp tới (7 ngày)
+List/timeline nhỏ
+project.milestone WHERE deadline BETWEEN today AND today+7
+3.3.1 Yêu cầu tương tác
+Mỗi widget cho phép click để drill-down vào list/kanban view chi tiết tương ứng (action window có domain truyền theo filter của widget).
+Bộ lọc toàn cục trên đầu dashboard: theo khoảng thời gian (tháng/quý/năm), theo Phòng ban, theo Dự án — áp dụng cho toàn bộ widget cùng lúc.
+Phân quyền hiển thị: Executive/Admin thấy toàn bộ; PM/Trưởng phòng chỉ thấy dữ liệu phòng ban/dự án mình quản lý (áp dụng qua ir.rule domain).
+Dashboard responsive, tối ưu hiển thị trên tablet/mobile (grid tự động xuống 1 cột).
+Tùy chọn xuất dashboard ra PDF/ảnh (nút Export).
+3.4 Quản lý người dùng & phân quyền
+Chi tiết ma trận quyền được nêu ở Mục 7. Yêu cầu chức năng bao gồm:
+Định nghĩa 5 nhóm quyền (xem 2.3) trong security/pm_hr_groups.xml, phân cấp implied_ids để nhóm cao hơn kế thừa quyền nhóm thấp hơn.
+Record rules (ir.rule) giới hạn: PM chỉ thấy project.project có user_id = mình hoặc member_ids chứa mình; Employee chỉ sửa được project.task có user_ids chứa mình; HR Officer thấy toàn bộ hr.employee, Manager chỉ thấy nhân viên thuộc phòng ban quản lý (child_of department_id).
+Tệp ir.model.access.csv định nghĩa quyền CRUD theo từng model x nhóm (chi tiết Mục 7).
+3.5 Thông báo & Email
+Sử dụng mail.thread/mail.activity cho project.task, hr.leave, hr.applicant để log hoạt động & bình luận.
+Email tự động: xác nhận giao task mới, nhắc deadline task còn 1 ngày (cron), thông báo đơn nghỉ phép được duyệt/từ chối, thông báo ứng viên chuyển vòng phỏng vấn.
+Template email (mail.template) định nghĩa sẵn cho từng sự kiện, có thể chỉnh sửa qua giao diện Settings.
+Thông báo trong ứng dụng (bell icon) khi được @mention trong ghi chú task.
+3.6 Báo cáo (Reports)
+Báo cáo | Định dạng | Nội dung
+Báo cáo
+Định dạng
+Nội dung
+Báo cáo tiến độ dự án | PDF (QWeb report) | Thông tin dự án, danh sách task, % hoàn thành, ngân sách, biểu đồ tiến độ theo thời gian
+Báo cáo tiến độ dự án
+PDF (QWeb report)
+Thông tin dự án, danh sách task, % hoàn thành, ngân sách, biểu đồ tiến độ theo thời gian
+Bảng chấm công tháng | PDF/Excel (xlsx qua report_xlsx nếu có) | Chi tiết giờ vào/ra, tổng giờ làm, đi trễ/về sớm theo từng nhân viên
+Bảng chấm công tháng
+PDF/Excel (xlsx qua report_xlsx nếu có)
+Chi tiết giờ vào/ra, tổng giờ làm, đi trễ/về sớm theo từng nhân viên
+Báo cáo hiệu suất nhân viên | PDF | Điểm đánh giá theo kỳ, số task hoàn thành, số giờ log
+Báo cáo hiệu suất nhân viên
+PDF
+Điểm đánh giá theo kỳ, số task hoàn thành, số giờ log
+Báo cáo ngân sách dự án theo phòng ban | Excel/Pivot export | So sánh kế hoạch/thực tế, chênh lệch (%)
+Báo cáo ngân sách dự án theo phòng ban
+Excel/Pivot export
+So sánh kế hoạch/thực tế, chênh lệch (%)
+4. YÊU CẦU PHI CHỨC NĂNG
+Hạng mục | Yêu cầu
+Hạng mục
+Yêu cầu
+Hiệu năng | Trang list/kanban tải ≤ 2 giây với 10.000 bản ghi (áp dụng pagination, index DB trên các field lọc/group thường dùng: stage_id, department_id, date_deadline, user_id)
+Hiệu năng
+Trang list/kanban tải ≤ 2 giây với 10.000 bản ghi (áp dụng pagination, index DB trên các field lọc/group thường dùng: stage_id, department_id, date_deadline, user_id)
+Bảo mật | Phân quyền theo nhóm + record rules; mật khẩu theo chính sách Odoo (độ dài, hết hạn); ghi log audit (mail.thread) cho các thay đổi quan trọng (stage, budget)
+Bảo mật
+Phân quyền theo nhóm + record rules; mật khẩu theo chính sách Odoo (độ dài, hết hạn); ghi log audit (mail.thread) cho các thay đổi quan trọng (stage, budget)
+Khả năng mở rộng | Kiến trúc module hóa (xem 2.2) cho phép bật/tắt từng phân hệ độc lập; field tùy biến qua Studio (nếu Enterprise) không phá vỡ code chuẩn
+Khả năng mở rộng
+Kiến trúc module hóa (xem 2.2) cho phép bật/tắt từng phân hệ độc lập; field tùy biến qua Studio (nếu Enterprise) không phá vỡ code chuẩn
+Khả dụng (Availability) | Uptime mục tiêu 99.5%; backup DB hàng ngày tự động
+Khả dụng (Availability)
+Uptime mục tiêu 99.5%; backup DB hàng ngày tự động
+Đa ngôn ngữ / Bản địa hóa | Giao diện tiếng Việt mặc định; hỗ trợ l10n_vn (kế toán VN) nếu tích hợp module tài chính sau này; định dạng ngày dd/mm/yyyy, tiền tệ VND
+Đa ngôn ngữ / Bản địa hóa
+Giao diện tiếng Việt mặc định; hỗ trợ l10n_vn (kế toán VN) nếu tích hợp module tài chính sau này; định dạng ngày dd/mm/yyyy, tiền tệ VND
+Khả năng sử dụng (Usability) | Giao diện tuân thủ UX chuẩn Odoo (không tùy biến phá layout gốc); responsive trên desktop/tablet/mobile; hỗ trợ dark mode nếu bật ở cấp hệ thống
+Khả năng sử dụng (Usability)
+Giao diện tuân thủ UX chuẩn Odoo (không tùy biến phá layout gốc); responsive trên desktop/tablet/mobile; hỗ trợ dark mode nếu bật ở cấp hệ thống
+Khả năng tương thích | Odoo 17.0 Community trở lên; trình duyệt Chrome/Edge/Firefox phiên bản mới nhất
+Khả năng tương thích
+Odoo 17.0 Community trở lên; trình duyệt Chrome/Edge/Firefox phiên bản mới nhất
+Khả năng bảo trì | Code tuân thủ OCA Guidelines, có docstring, tách rõ models/views/security/data/reports theo chuẩn cấu trúc thư mục Odoo
+Khả năng bảo trì
+Code tuân thủ OCA Guidelines, có docstring, tách rõ models/views/security/data/reports theo chuẩn cấu trúc thư mục Odoo
+5. MA TRẬN PHÂN QUYỀN (ACCESS RIGHTS MATRIX)
+Ký hiệu: R = Read, W = Write, C = Create, D = Delete, — = Không có quyền.
+Model | Admin | Executive | Manager (PM/Trưởng phòng) | Employee | HR Officer
+Model
+Admin
+Executive
+Manager (PM/Trưởng phòng)
+Employee
+HR Officer
+project.project | RWCD | R | RWCD (dự án quản lý) | R (dự án tham gia) | R
+project.project
+RWCD
+R
+RWCD (dự án quản lý)
+R (dự án tham gia)
+R
+project.task | RWCD | R | RWCD (trong dự án quản lý) | RW (task được giao) | R
+project.task
+RWCD
+R
+RWCD (trong dự án quản lý)
+RW (task được giao)
+R
+project.milestone | RWCD | R | RWCD | R | R
+project.milestone
+RWCD
+R
+RWCD
+R
+R
+hr.employee | RWCD | R | RW (phòng ban quản lý) | R (hồ sơ cá nhân) | RWCD
+hr.employee
+RWCD
+R
+RW (phòng ban quản lý)
+R (hồ sơ cá nhân)
+RWCD
+hr.contract | RWCD | — | R (phòng ban quản lý) | — | RWCD
+hr.contract
+RWCD
+—
+R (phòng ban quản lý)
+—
+RWCD
+hr.leave | RWCD | R | RW (duyệt phòng ban) | RWC (đơn của mình) | RWCD
+hr.leave
+RWCD
+R
+RW (duyệt phòng ban)
+RWC (đơn của mình)
+RWCD
+hr.attendance | RWCD | R | R (phòng ban quản lý) | RWC (của mình) | RWCD
+hr.attendance
+RWCD
+R
+R (phòng ban quản lý)
+RWC (của mình)
+RWCD
+hr.applicant | RWCD | R | RW (vị trí phụ trách) | — | RWCD
+hr.applicant
+RWCD
+R
+RW (vị trí phụ trách)
+—
+RWCD
+hr.appraisal | RWCD | R | RW (nhân viên quản lý) | R/W (tự đánh giá phần mình) | RWCD
+hr.appraisal
+RWCD
+R
+RW (nhân viên quản lý)
+R/W (tự đánh giá phần mình)
+RWCD
+Dashboard tổng hợp | Toàn bộ | Toàn bộ | Theo phòng ban/dự án quản lý | Giới hạn cá nhân | Theo module HR
+Dashboard tổng hợp
+Toàn bộ
+Toàn bộ
+Theo phòng ban/dự án quản lý
+Giới hạn cá nhân
+Theo module HR
+6. QUY TRÌNH NGHIỆP VỤ (WORKFLOWS)
+6.1 Vòng đời công việc (project.task)
+To Do → In Progress → Review → Done  (nhánh phụ: bất kỳ trạng thái → Cancelled).
+To Do → In Progress: khi user_ids nhận task và bắt đầu làm việc (thủ công kéo thẻ kanban hoặc bấm nút 'Bắt đầu').
+In Progress → Review: khi effective_hours ghi nhận > 0 và người phụ trách đánh dấu hoàn thành nội dung, chờ PM duyệt.
+Review → Done: PM xác nhận; hệ thống kiểm tra depend_on_ids đã Done hết chưa (validation), nếu chưa → chặn và thông báo.
+Bất kỳ → Cancelled: chỉ Admin/PM có quyền, yêu cầu nhập lý do (wizard xác nhận).
+6.2 Vòng đời dự án (project.project)
+Khởi tạo → Đang thực hiện → Nghiệm thu → Đóng.
+Khởi tạo → Đang thực hiện: khi có ít nhất 1 task được tạo và ngày date_start đã tới.
+Đang thực hiện → Nghiệm thu: khi progress = 100% (tất cả task Done).
+Nghiệm thu → Đóng: PM/Admin xác nhận thủ công sau khi khách hàng chấp nhận; hệ thống khóa chỉnh sửa task (chỉ cho phép xem).
+6.3 Quy trình duyệt nghỉ phép (hr.leave)
+Nháp → Chờ duyệt (quản lý trực tiếp) → Chờ duyệt (HR) → Đã duyệt / Từ chối.
+Nhân viên tạo đơn ở trạng thái Nháp, bấm Gửi để chuyển Chờ duyệt cấp 1 (parent_id của employee).
+Quản lý trực tiếp duyệt → chuyển Chờ duyệt cấp 2 (HR Officer).
+HR Officer duyệt cuối → Đã duyệt, tự động trừ leave_balance; hoặc Từ chối kèm lý do bắt buộc.
+6.4 Quy trình tuyển dụng (hr.applicant)
+Ứng tuyển mới → Sàng lọc CV → Phỏng vấn vòng 1 → Phỏng vấn vòng 2 → Đề nghị Offer → Đã tuyển (hoặc Từ chối ở bất kỳ bước nào).
+Chuyển stage bằng kéo-thả kanban; mỗi lần chuyển ghi log vào mail.thread kèm người thực hiện & thời gian.
+Khi vào 'Đã tuyển': wizard xác nhận thông tin, tự động sinh hr.employee + hr.contract nháp.
+7. YÊU CẦU TÍCH HỢP & API
+Odoo External API (XML-RPC/JSON-RPC) chuẩn để cho phép hệ thống bên thứ 3 (nếu có) đọc/ghi dữ liệu project.project, project.task, hr.employee, hr.attendance.
+Webhook/Automated Actions (base_automation) để trigger khi task chuyển sang Done, đơn nghỉ phép được duyệt — gửi thông báo ra kênh ngoài (email, hoặc Slack/Zalo qua module tích hợp riêng nếu yêu cầu ở giai đoạn sau).
+Import/Export dữ liệu qua chuẩn Odoo (CSV/XLSX) cho danh sách nhân viên, danh sách dự án khi khởi tạo hệ thống lần đầu.
+Khả năng tích hợp chấm công phần cứng qua API riêng (ghi nhận vào hr.attendance) — thiết kế field check_in/check_out mở để nhận dữ liệu từ nguồn ngoài ở giai đoạn 2.
+8. CẤU TRÚC MODULE ODOO (DÀNH CHO AGENT LẬP TRÌNH)
+Cấu trúc thư mục đề xuất, tuân thủ chuẩn Odoo 17, giúp agent sinh code đúng vị trí:
+pm_hr_suite/├── pm_hr_base/│   ├── __init__.py│   ├── __manifest__.py│   ├── security/│   │   ├── pm_hr_groups.xml│   │   └── ir.model.access.csv│   ├── data/│   │   └── ir_sequence_data.xml│   └── models/│       ├── __init__.py│       └── hr_department.py│├── pm_hr_project/│   ├── __init__.py│   ├── __manifest__.py            # depends: project, hr_timesheet, pm_hr_base│   ├── security/│   │   ├── ir.model.access.csv│   │   └── project_security.xml    # ir.rule│   ├── models/│   │   ├── __init__.py│   │   ├── project_project.py│   │   ├── project_task.py│   │   └── project_milestone.py│   ├── views/│   │   ├── project_project_views.xml   # kanban, list, form, calendar, pivot, graph, search│   │   ├── project_task_views.xml│   │   └── project_menus.xml│   └── report/│       ├── project_progress_report.xml│       └── project_progress_report_templates.xml│├── pm_hr_employee/│   ├── __init__.py│   ├── __manifest__.py            # depends: hr, hr_contract, hr_holidays, hr_attendance, pm_hr_base│   ├── security/│   │   ├── ir.model.access.csv│   │   └── hr_security.xml│   ├── models/│   │   ├── __init__.py│   │   ├── hr_employee.py│   │   ├── hr_leave.py│   │   └── hr_attendance.py│   ├── views/│   │   ├── hr_employee_views.xml│   │   ├── hr_leave_views.xml│   │   ├── hr_attendance_views.xml│   │   └── hr_menus.xml│   └── report/│       └── attendance_monthly_report.xml│├── pm_hr_recruitment/│   ├── __init__.py│   ├── __manifest__.py            # depends: hr_recruitment, pm_hr_employee│   ├── models/hr_applicant.py│   └── views/hr_applicant_views.xml│├── pm_hr_appraisal/│   ├── __init__.py│   ├── __manifest__.py            # depends: hr_appraisal, pm_hr_employee│   ├── models/hr_appraisal.py│   └── views/hr_appraisal_views.xml│└── pm_hr_dashboard/    ├── __init__.py    ├── __manifest__.py            # depends: board, pm_hr_project, pm_hr_employee    ├── controllers/    │   └── dashboard_controller.py     # route JSON cung cấp số liệu KPI    ├── static/src/    │   ├── js/dashboard.js             # OWL component    │   ├── xml/dashboard.xml           # template OWL    │   └── scss/dashboard.scss    └── views/        └── dashboard_menus.xml
+8.1 Ví dụ khai báo __manifest__.py (pm_hr_project)
+{    "name": "PM & HR Suite - Project Management",    "version": "17.0.1.0.0",    "category": "Services/Project",    "summary": "Mo rong quan ly du an: ngan sach, rui ro, dashboard",    "depends": ["project", "hr_timesheet", "pm_hr_base"],    "data": [        "security/ir.model.access.csv",        "security/project_security.xml",        "data/project_stage_data.xml",        "views/project_project_views.xml",        "views/project_task_views.xml",        "views/project_menus.xml",        "report/project_progress_report.xml",    ],    "application": False,    "installable": True,    "license": "LGPL-3",}
+8.2 Ví dụ model project.project (rút gọn)
+from odoo import models, fields, api class ProjectProject(models.Model):    _inherit = "project.project"     code = fields.Char(string="Ma du an", copy=False, readonly=True,                        default=lambda self: self.env["ir.sequence"].next_by_code("project.project.code"))    budget_planned = fields.Monetary(string="Ngan sach ke hoach")    budget_actual = fields.Monetary(string="Ngan sach thuc te", compute="_compute_budget_actual", store=True)    priority = fields.Selection([        ("low", "Thap"), ("normal", "Binh thuong"),        ("high", "Cao"), ("urgent", "Khan cap")], default="normal")    risk_level = fields.Selection([        ("low", "Thap"), ("medium", "Trung binh"), ("high", "Cao")], default="low")    health_status = fields.Selection([        ("on_track", "Dung tien do"), ("at_risk", "Co rui ro"),        ("delayed", "Cham tien do")], compute="_compute_health_status", store=True)    progress = fields.Float(string="Tien do (%)", compute="_compute_progress", store=True)    milestone_ids = fields.One2many("project.milestone", "project_id", string="Moc du an")     @api.depends("task_ids.stage_id", "task_ids.date_deadline")    def _compute_health_status(self):        for project in self:            tasks = project.task_ids            if not tasks:                project.health_status = "on_track"                continue            overdue = tasks.filtered(                lambda t: t.date_deadline and t.date_deadline < fields.Date.today()                and t.stage_id.name != "Done")            ratio = len(overdue) / len(tasks)            project.health_status = (                "delayed" if ratio > 0.3 else "at_risk" if ratio > 0.1 else "on_track")     @api.depends("task_ids.stage_id")    def _compute_progress(self):        for project in self:            total = len(project.task_ids)            done = len(project.task_ids.filtered(lambda t: t.stage_id.name == "Done"))            project.progress = (done / total * 100) if total else 0.0
+8.3 Ví dụ view Kanban project.project (rút gọn)
+<record id="view_project_kanban_pmhr" model="ir.ui.view">  <field name="name">project.project.kanban.pmhr</field>  <field name="model">project.project</field>  <field name="arch" type="xml">    <kanban default_group_by="stage_id" class="o_kanban_small_column">      <field name="priority"/>      <field name="risk_level"/>      <field name="progress"/>      <field name="user_id"/>      <field name="date_end"/>      <templates>        <t t-name="kanban-box">          <div class="oe_kanban_card oe_kanban_global_click">            <div class="o_kanban_record_top">              <strong><field name="name"/></strong>              <span t-attf-class="badge badge-#{record.risk_level.raw_value == 'high' ? 'danger' : 'success'}">                <field name="risk_level"/>              </span>            </div>            <div class="o_kanban_record_body">              <field name="progress" widget="progressbar"/>              <field name="date_end"/>            </div>            <div class="o_kanban_record_bottom">              <field name="user_id" widget="many2one_avatar_user"/>            </div>          </div>        </t>      </templates>    </kanban>  </field></record>
+9. TIÊU CHÍ NGHIỆM THU (ACCEPTANCE CRITERIA)
+# | Tiêu chí | Điều kiện đạt (Definition of Done)
+#
+Tiêu chí
+Điều kiện đạt (Definition of Done)
+1 | Quản lý dự án | Tạo/sửa/xóa dự án và task hoạt động đúng trên cả 4 view (kanban/list/form/calendar); tính đúng progress, health_status, budget_actual
+1
+Quản lý dự án
+Tạo/sửa/xóa dự án và task hoạt động đúng trên cả 4 view (kanban/list/form/calendar); tính đúng progress, health_status, budget_actual
+2 | Quản lý nhân sự | CRUD hồ sơ nhân viên, hợp đồng, chấm công, nghỉ phép hoạt động đúng workflow duyệt 2 cấp
+2
+Quản lý nhân sự
+CRUD hồ sơ nhân viên, hợp đồng, chấm công, nghỉ phép hoạt động đúng workflow duyệt 2 cấp
+3 | Tuyển dụng | Pipeline kanban kéo-thả đúng thứ tự stage; chuyển ứng viên trúng tuyển sinh đúng hr.employee
+3
+Tuyển dụng
+Pipeline kanban kéo-thả đúng thứ tự stage; chuyển ứng viên trúng tuyển sinh đúng hr.employee
+4 | Đánh giá hiệu suất | Form đánh giá lưu điểm đúng, biểu đồ so sánh qua kỳ hiển thị chính xác
+4
+Đánh giá hiệu suất
+Form đánh giá lưu điểm đúng, biểu đồ so sánh qua kỳ hiển thị chính xác
+5 | Dashboard | Toàn bộ 11 widget tại Mục 3.3 hiển thị đúng số liệu, lọc theo bộ lọc toàn cục hoạt động, phân quyền hiển thị đúng theo vai trò
+5
+Dashboard
+Toàn bộ 11 widget tại Mục 3.3 hiển thị đúng số liệu, lọc theo bộ lọc toàn cục hoạt động, phân quyền hiển thị đúng theo vai trò
+6 | Phân quyền | Test với từng vai trò (5 vai trò Mục 2.3), xác nhận đúng ma trận tại Mục 5, không rò rỉ dữ liệu ngoài phạm vi
+6
+Phân quyền
+Test với từng vai trò (5 vai trò Mục 2.3), xác nhận đúng ma trận tại Mục 5, không rò rỉ dữ liệu ngoài phạm vi
+7 | Báo cáo | 4 báo cáo tại Mục 3.6 xuất đúng định dạng, đúng dữ liệu, không lỗi layout PDF
+7
+Báo cáo
+4 báo cáo tại Mục 3.6 xuất đúng định dạng, đúng dữ liệu, không lỗi layout PDF
+8 | Hiệu năng | Đạt các chỉ tiêu tại Mục 4 khi test với dữ liệu mẫu 10.000 bản ghi task và 500 nhân viên
+8
+Hiệu năng
+Đạt các chỉ tiêu tại Mục 4 khi test với dữ liệu mẫu 10.000 bản ghi task và 500 nhân viên
+10. PHỤ LỤC
+10.1 Danh sách menu đề xuất
+Tổng quan (Dashboard) — module gốc, hiển thị đầu tiên
+Dự án → Dự án của tôi | Tất cả dự án | Công việc | Mốc dự án | Báo cáo
+Nhân sự → Nhân viên | Phòng ban | Hợp đồng | Chấm công | Nghỉ phép | Tuyển dụng | Đánh giá hiệu suất
+Cấu hình → Nhóm quyền | Giai đoạn dự án | Loại nghỉ phép | Sequence | Cài đặt chung
+10.2 Ghi chú triển khai cho Agent
+Triển khai theo đúng thứ tự dependency tại Mục 2.2 / Mục 8 (pm_hr_base trước, sau đó pm_hr_project & pm_hr_employee song song, cuối cùng pm_hr_recruitment/appraisal/dashboard).
+Mỗi model mới cần đi kèm: security (ir.model.access.csv), views (list/form/kanban tối thiểu), menu action tương ứng — không bỏ sót phần security dẫn đến lỗi access.
+Ưu tiên kế thừa (_inherit) các model chuẩn Odoo thay vì tạo model mới trùng chức năng, nhằm tận dụng tính năng có sẵn (chatter, activity, timesheet...).
+Viết demo data (data/*.xml với noupdate="1" cho demo) để test nhanh dashboard và các view kanban có đủ dữ liệu mẫu.

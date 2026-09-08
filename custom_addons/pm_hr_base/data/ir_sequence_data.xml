@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequence for Project Code -->
+        <record id="seq_project_project_code" model="ir.sequence">
+            <field name="name">Project Code Sequence</field>
+            <field name="code">project.project.code</field>
+            <field name="prefix">PRJ/%(year)s/</field>
+            <field name="padding">3</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Sequence for Employee Code -->
+        <record id="seq_hr_employee_code" model="ir.sequence">
+            <field name="name">Employee Code Sequence</field>
+            <field name="code">hr.employee.code</field>
+            <field name="prefix">EMP</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

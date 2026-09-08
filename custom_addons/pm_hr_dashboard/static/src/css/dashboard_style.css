@@ -1,0 +1,215 @@
+/* PM & HR Executive Dashboard Styles */
+.o_pm_hr_dashboard_container {
+    padding: 24px;
+    background-color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+/* Header */
+.o_dashboard_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.o_dashboard_title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* KPI Cards Grid */
+.o_kpi_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.o_kpi_card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.o_kpi_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.o_kpi_header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.o_kpi_icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.o_kpi_icon.blue { background-color: #eff6ff; color: #2563eb; }
+.o_kpi_icon.green { background-color: #ecfdf5; color: #059669; }
+.o_kpi_icon.orange { background-color: #fffbebf; color: #d97706; }
+.o_kpi_icon.red { background-color: #fef2f2; color: #dc2626; }
+.o_kpi_icon.purple { background-color: #f5f3ff; color: #7c3aed; }
+
+.o_kpi_value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 8px;
+}
+.o_kpi_label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+.o_kpi_trend {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+.o_kpi_trend.up { color: #10b981; }
+.o_kpi_trend.down { color: #ef4444; }
+
+/* Main Content Grid: 3 Panels */
+.o_dashboard_panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+    .o_dashboard_panels {
+        grid-template-columns: 1fr;
+    }
+}
+
+.o_dashboard_panel {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.o_panel_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.o_panel_title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Donut Chart Styling */
+.o_donut_chart_container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 0;
+}
+.o_donut_legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.o_legend_item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #334155;
+}
+.o_legend_dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* Progress Bars List */
+.o_progress_list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.o_progress_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.o_progress_item_header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+.o_progress_bar_bg {
+    background-color: #f1f5f9;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.o_progress_bar_fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 4px;
+}
+
+/* Table styles */
+.o_dashboard_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.o_dashboard_table th {
+    color: #64748b;
+    font-weight: 600;
+    text-align: left;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.o_dashboard_table td {
+    padding: 12px 0;
+    border-bottom: 1px solid #f8fafc;
+    color: #334155;
+}
+
+/* Alerts box */
+.o_alert_list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.o_alert_item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.o_alert_item.warning { background-color: #fffbebf; color: #b45309; }
+.o_alert_item.info { background-color: #eff6ff; color: #1d4ed8; }
+.o_alert_item.success { background-color: #ecfdf5; color: #047857; }

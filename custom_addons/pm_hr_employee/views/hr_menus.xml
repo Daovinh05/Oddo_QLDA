@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action for Department -->
+    <record id="action_pm_hr_department" model="ir.actions.act_window">
+        <field name="name">Phòng ban</field>
+        <field name="res_model">hr.department</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <!-- Action for Attendance -->
+    <record id="action_pm_hr_attendance" model="ir.actions.act_window">
+        <field name="name">Chấm công</field>
+        <field name="res_model">hr.attendance</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Leaves -->
+    <record id="action_pm_hr_leave" model="ir.actions.act_window">
+        <field name="name">Nghỉ phép</field>
+        <field name="res_model">hr.leave</field>
+        <field name="view_mode">tree,form,calendar</field>
+    </record>
+
+    <!-- Sub Menu Human Resources under pm_hr_base root menu -->
+    <menuitem id="menu_hr_root" name="Nhân sự" parent="pm_hr_base.menu_pm_hr_root" sequence="20"/>
+
+    <menuitem id="menu_hr_employee_list" name="Nhân viên" parent="menu_hr_root" action="hr.open_view_employee_list_my" sequence="10"/>
+    <menuitem id="menu_hr_department_list" name="Phòng ban" parent="menu_hr_root" action="action_pm_hr_department" sequence="20"/>
+    <menuitem id="menu_hr_contract_list" name="Hợp đồng" parent="menu_hr_root" action="hr_contract.action_hr_contract" sequence="30"/>
+    <menuitem id="menu_hr_attendance_list" name="Chấm công" parent="menu_hr_root" action="action_pm_hr_attendance" sequence="40"/>
+    <menuitem id="menu_hr_leave_list" name="Nghỉ phép" parent="menu_hr_root" action="action_pm_hr_leave" sequence="50"/>
+</odoo>

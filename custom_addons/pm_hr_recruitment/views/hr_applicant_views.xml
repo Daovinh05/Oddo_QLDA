@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_applicant_form_pmhr" model="ir.ui.view">
+        <field name="name">hr.applicant.form.pmhr</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="rating_stars" widget="priority"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Ghi chú phỏng vấn" name="page_interview">
+                    <field name="interview_notes" placeholder="Nhập chi tiết ghi chú qua các vòng phỏng vấn..."/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Recruitment Menu Under HR Root -->
+    <menuitem id="menu_hr_recruitment_list" name="Tuyển dụng" parent="pm_hr_employee.menu_hr_root" action="hr_recruitment.action_hr_job" sequence="60"/>
+</odoo>

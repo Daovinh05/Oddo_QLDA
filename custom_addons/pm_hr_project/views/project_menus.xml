@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sub Menu Project Management under pm_hr_base root menu -->
+    <menuitem id="menu_project_root" name="Dự án" parent="pm_hr_base.menu_pm_hr_root" sequence="10"/>
+
+    <!-- Action All Projects -->
+    <record id="action_view_all_projects" model="ir.actions.act_window">
+        <field name="name">Tất cả dự án</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+    </record>
+
+    <!-- Action My Projects -->
+    <record id="action_view_my_projects" model="ir.actions.act_window">
+        <field name="name">Dự án của tôi</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">['|', ('user_id', '=', uid), ('member_ids', 'in', [uid])]</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_my_projects" name="Dự án của tôi" parent="menu_project_root" action="action_view_my_projects" sequence="10"/>
+    <menuitem id="menu_all_projects" name="Tất cả dự án" parent="menu_project_root" action="action_view_all_projects" sequence="20"/>
+    <menuitem id="menu_project_tasks" name="Công việc" parent="menu_project_root" action="project.action_view_task" sequence="30"/>
+    <menuitem id="menu_project_milestones" name="Mốc dự án" parent="menu_project_root" action="action_project_milestone" sequence="40"/>
+</odoo>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pm_hr_dashboard.DashboardMainTemplate" owl="1">
+        <div class="o_pm_hr_dashboard_container">
+            <!-- Header -->
+            <div class="o_dashboard_header">
+                <div class="o_dashboard_title">
+                    <span>📊 Tổng quan Điều hành PM &amp; HR Suite</span>
+                </div>
+            </div>
+
+            <!-- KPI Row 1 -->
+            <div class="o_kpi_grid">
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon blue">📁</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.total_projects"/></div>
+                            <div class="o_kpi_label">Tổng dự án đang chạy</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">↑ 12% so với tháng trước</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon green">👥</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.total_employees"/></div>
+                            <div class="o_kpi_label">Tổng nhân sự</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">↑ 8% so với tháng trước</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon orange">⏳</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.running_tasks"/></div>
+                            <div class="o_kpi_label">Công việc đang làm</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">Đang tiến hành</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon red">⚠️</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.overdue_tasks"/></div>
+                            <div class="o_kpi_label">Công việc quá hạn</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend down">Cần xử lý gấp</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon purple">✅</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.available_resources"/>%</div>
+                            <div class="o_kpi_label">Tỷ lệ chuyên cần / Có sẵn</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">↑ 15% so với tháng trước</div>
+                </div>
+            </div>
+
+            <!-- KPI Row 2 Financial & HR -->
+            <div class="o_kpi_grid">
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon green">💲</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.total_budget_planned"/> VNĐ</div>
+                            <div class="o_kpi_label">Tổng ngân sách kế hoạch</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">↑ 20% so với kế hoạch cũ</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon orange">📝</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.pending_leaves"/></div>
+                            <div class="o_kpi_label">Đơn nghỉ phép chờ duyệt</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend down">Cần HR / Manager duyệt</div>
+                </div>
+
+                <div class="o_kpi_card">
+                    <div class="o_kpi_header">
+                        <div class="o_kpi_icon purple">🕒</div>
+                        <div>
+                            <div class="o_kpi_value"><t t-esc="state.data.today_attendances"/></div>
+                            <div class="o_kpi_label">Chấm công hôm nay</div>
+                        </div>
+                    </div>
+                    <div class="o_kpi_trend up">Đang làm việc</div>
+                </div>
+            </div>
+
+            <!-- Charts Section (3 Panels) -->
+            <div class="o_dashboard_panels">
+                <!-- Panel 1: Projects by Department Donut -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Tỷ lệ Dự án theo Phòng ban</div>
+                    </div>
+                    <div class="o_donut_chart_container">
+                        <!-- SVG Donut Chart -->
+                        <svg width="140" height="140" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#f1f5f9" stroke-width="5"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#2563eb" stroke-width="5" stroke-dasharray="35 65" stroke-dashoffset="25"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#059669" stroke-width="5" stroke-dasharray="25 75" stroke-dashoffset="90"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#d97706" stroke-width="5" stroke-dasharray="20 80" stroke-dashoffset="65"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#7c3aed" stroke-width="5" stroke-dasharray="20 80" stroke-dashoffset="45"></circle>
+                        </svg>
+                        <div class="o_donut_legend">
+                            <div class="o_legend_item"><span class="o_legend_dot" style="background:#2563eb;"></span> Công nghệ (35%)</div>
+                            <div class="o_legend_item"><span class="o_legend_dot" style="background:#059669;"></span> Nhân sự (25%)</div>
+                            <div class="o_legend_item"><span class="o_legend_dot" style="background:#d97706;"></span> Kinh doanh (20%)</div>
+                            <div class="o_legend_item"><span class="o_legend_dot" style="background:#7c3aed;"></span> Kỹ thuật (20%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Progress & Trend -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Tình trạng thực hiện (6 tháng qua)</div>
+                    </div>
+                    <div style="padding: 10px 0;">
+                        <svg width="100%" height="130" viewBox="0 0 300 100">
+                            <path d="M10,80 Q50,40 90,60 T170,30 T250,50 T290,20" fill="none" stroke="#6366f1" stroke-width="3" />
+                            <path d="M10,90 Q50,70 90,80 T170,50 T250,65 T290,40" fill="none" stroke="#10b981" stroke-width="3" />
+                            <circle cx="90" cy="60" r="4" fill="#6366f1"/>
+                            <circle cx="170" cy="30" r="4" fill="#6366f1"/>
+                            <circle cx="250" cy="50" r="4" fill="#6366f1"/>
+                        </svg>
+                        <div style="display:flex; justify-content:space-around; font-size:11px; color:#64748b; margin-top:5px;">
+                            <span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Top Employees by Log Hours -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Top Nhân viên ghi nhận nhiều giờ nhất</div>
+                    </div>
+                    <div class="o_progress_list">
+                        <t t-foreach="state.data.top_employees" t-as="emp" t-key="emp.rank">
+                            <div class="o_progress_item">
+                                <div class="o_progress_item_header">
+                                    <span><t t-esc="emp.rank"/>. <t t-esc="emp.name"/></span>
+                                    <span><t t-esc="emp.hours"/> giờ</span>
+                                </div>
+                                <div class="o_progress_bar_bg">
+                                    <div class="o_progress_bar_fill" t-attf-style="width: #{emp.hours * 2}%;"></div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Tables Section (3 Panels) -->
+            <div class="o_dashboard_panels">
+                <!-- Recent Projects -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Dự án mới nhất</div>
+                    </div>
+                    <table class="o_dashboard_table">
+                        <thead>
+                            <tr>
+                                <th>Mã dự án</th>
+                                <th>Tên dự án</th>
+                                <th>PM</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.data.recent_projects" t-as="prj" t-key="prj.code">
+                                <tr>
+                                    <td><strong><t t-esc="prj.code"/></strong></td>
+                                    <td><t t-esc="prj.name"/></td>
+                                    <td><t t-esc="prj.pm"/></td>
+                                    <td><span class="badge bg-success text-white">Đang chạy</span></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Recent Employees -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Nhân viên mới nhất</div>
+                    </div>
+                    <table class="o_dashboard_table">
+                        <thead>
+                            <tr>
+                                <th>Mã NV</th>
+                                <th>Tên nhân viên</th>
+                                <th>SĐT</th>
+                                <th>Ngày vào</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.data.recent_employees" t-as="emp" t-key="emp.code">
+                                <tr>
+                                    <td><strong><t t-esc="emp.code"/></strong></td>
+                                    <td><t t-esc="emp.name"/></td>
+                                    <td><t t-esc="emp.phone"/></td>
+                                    <td><t t-esc="emp.date_join"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- System Alerts -->
+                <div class="o_dashboard_panel">
+                    <div class="o_panel_header">
+                        <div class="o_panel_title">Cảnh báo hệ thống</div>
+                    </div>
+                    <div class="o_alert_list">
+                        <t t-foreach="state.data.alerts" t-as="alert" t-key="alert.title">
+                            <div t-attf-class="o_alert_item #{alert.type}">
+                                <span><t t-esc="alert.title"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
