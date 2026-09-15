@@ -5,7 +5,7 @@
     'category': 'Human Resources',
     'summary': 'Nen tang dinh nghia nhom quyen va danh muc chung cho PM & HR Suite',
     'author': 'Antigravity AI',
-    'depends': ['base', 'mail', 'hr'],
+    'depends': ['base', 'mail', 'hr', 'project'],
     'data': [
         'security/pm_hr_groups.xml',
         'security/ir.model.access.csv',

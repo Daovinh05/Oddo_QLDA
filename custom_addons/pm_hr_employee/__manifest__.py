@@ -5,7 +5,7 @@
     'category': 'Human Resources',
     'summary': 'Mo rong ho so nhan vien, hop dong, nghi phep va cham cong',
     'author': 'Antigravity AI',
-    'depends': ['hr', 'hr_contract', 'hr_holidays', 'hr_attendance', 'pm_hr_base'],
+    'depends': ['hr', 'hr_contract', 'hr_holidays', 'hr_attendance', 'pm_hr_base', 'project'],
     'data': [
         'security/ir.model.access.csv',
         'security/hr_security.xml',
